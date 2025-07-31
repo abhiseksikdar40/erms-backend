@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
     userRole: { type: String, enum: ["Engineer", "Manager"], required: true},
     // For Engineer Fields ↓
     userSkills: [{ type: String}],
-    userSeniority: { type: String, enum: ["Junior", "Mid", "Senior"], required: true},
+    userSeniority: { type: String, enum: ["Junior", "Mid", "Senior"]},
     maxCapacity: { type: Number},
     userDepartment: { type: String}
 },
