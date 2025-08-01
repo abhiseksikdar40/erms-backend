@@ -136,6 +136,22 @@ app.post("/v1/auth/update/me", verifyJWT, async (req, res) => {
   }
 });
 
+// Fetch all engineers (protected route)
+app.get("/v1/auth/engineers", verifyJWT, async (req, res) => {
+  try {
+    if (req.user.userRole !== "Manager") {
+      return res.status(403).json({ message: "Only managers can view engineers" });
+    }
+
+    const engineers = await User.find({ userRole: "Engineer" }).select("-userPassword");
+    res.status(200).json({ users: engineers });
+  } catch (error) {
+    console.error("Error fetching engineers:", error.message);
+    res.status(500).json({ message: "Failed to fetch engineers" });
+  }
+});
+
+
 // --- Project Routes ---
 app.post("/v1/auth/projects", verifyJWT, async (req, res) => {
   try {
