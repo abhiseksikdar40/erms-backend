@@ -254,9 +254,9 @@ app.post("/v1/auth/tasks", verifyJWT, async (req, res) => {
 
 app.get("/v1/auth/tasks", verifyJWT, async (req, res) => {
   try {
-    if (req.user.userRole !== "Engineer") {
-      return res.status(403).json({ message: "Only engineers can view their tasks" });
-    }
+    // if (req.user.userRole !== "Engineer") {
+    //   return res.status(403).json({ message: "Only engineers can view their tasks" });
+    // }
 
     const tasks = await Task.find({ engineerId: req.user.id }).populate("projectId", "projectName projectStatus");
 
