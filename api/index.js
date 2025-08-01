@@ -88,21 +88,27 @@ app.post("/v1/signup", async (req, res) => {
 
 app.post("/v1/login", async (req, res) => {
   try {
-    const { userEmail, password } = req.body;
+    const { userEmail, userPassword } = req.body;
+
     const user = await User.findOne({ userEmail });
     if (!user) return res.status(404).json({ message: "User not found" });
-    const isMatch = await bcrypt.compare(password, user.userPassword);
+
+    const isMatch = await bcrypt.compare(userPassword, user.userPassword);
     if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+
     const token = JWT.sign(
       { id: user._id, email: user.userEmail, userRole: user.userRole },
       JWT_SECRET,
       { expiresIn: "24h" }
     );
+
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {
+    console.error("Login error:", error);
     res.status(500).json({ message: "Login failed" });
   }
 });
+
 
 app.get("/v1/auth/me", verifyJWT, async (req, res) => {
   try {
