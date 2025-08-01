@@ -1,4 +1,3 @@
-// --- Required Libraries ---
 const express = require("express");
 require("dotenv").config();
 const serverless = require("serverless-http");
@@ -17,8 +16,8 @@ app.use(express.json());
 
 // --- CORS ---
 const corsOptions = {
-  origin: ["http://localhost:5173"],
-  methods: ["GET", "POST", "DELETE", "OPTIONS"],
+  origin: "*", // or ["http://localhost:5173", "https://your-vercel-url"]
+  methods: "GET,POST,DELETE,OPTIONS,PATCH",
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
@@ -28,14 +27,17 @@ app.use(cors(corsOptions));
 const JWT_SECRET = process.env.JWT_KEY;
 const verifyJWT = (req, res, next) => {
   const authHeader = req.headers["authorization"];
-  if (!authHeader) return res.status(401).json({ message: "No Token Provided!" });
-  const token = authHeader.split(" ")[1];
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "No Token Provided or Invalid Format!" });
+  }
 
+  const token = authHeader.split(" ")[1];
   try {
-    const decodedToken = JWT.verify(token, JWT_SECRET);
-    req.user = decodedToken;
+    const decoded = JWT.verify(token, JWT_SECRET);
+    req.user = decoded;
     next();
-  } catch (error) {
+  } catch (err) {
+    console.error("JWT validation failed:", err.message);
     return res.status(403).json({ message: "Invalid Token!" });
   }
 };
