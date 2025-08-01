@@ -43,22 +43,48 @@ const verifyJWT = (req, res, next) => {
 // --- Auth Routes ---
 app.post("/v1/signup", async (req, res) => {
   try {
-    const { userName, userEmail, password, userRole } = req.body;
+    const {
+      userName,
+      userEmail,
+      userPassword,
+      userRole,
+      userSkills,
+      userSeniority,
+      userDepartment,
+      maxCapacity,
+    } = req.body;
+
+    if (!userName || !userEmail || !userPassword || !userRole) {
+      return res.status(400).json({ message: "Required fields missing" });
+    }
+
     const existingUser = await User.findOne({ userEmail });
-    if (existingUser) return res.status(400).json({ message: "User already exists" });
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(userPassword, 10);
+
     const newUser = new User({
       userName,
       userEmail,
       userPassword: hashedPassword,
       userRole,
+      userSkills: userSkills || [],
+      userSeniority,
+      userDepartment,
+      maxCapacity: maxCapacity ? Number(maxCapacity) : undefined,
     });
+
     await newUser.save();
+
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
+    console.error("SIGNUP ERROR:", error);
     res.status(500).json({ message: "Registration failed", error: error.message });
   }
 });
+
 
 app.post("/v1/login", async (req, res) => {
   try {
