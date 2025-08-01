@@ -158,7 +158,7 @@ app.get("/v1/auth/projects", verifyJWT, async (req, res) => {
     } else {
       return res.status(403).json({ message: "Unauthorized" });
     }
-    res.status(200).json(projects);
+    res.status(200).json({projects});
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch projects" });
   }
