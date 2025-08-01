@@ -237,8 +237,10 @@ app.post("/v1/auth/tasks", verifyJWT, async (req, res) => {
       return res.status(404).json({ message: "Project not found or unauthorized" });
     }
 
+    // Automatically assign engineer to project if not already assigned
     if (!project.assignedEngineers.includes(engineerId)) {
-      return res.status(400).json({ message: "Engineer is not assigned to this project" });
+      project.assignedEngineers.push(engineerId);
+      await project.save();
     }
 
     const task = new Task({ engineerId, projectId, allocationPercentage, startDate, endDate });
