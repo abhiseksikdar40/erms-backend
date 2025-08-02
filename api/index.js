@@ -15,13 +15,14 @@ resourceManagementData();
 app.use(express.json());
 
 // --- CORS ---
-const corsOptions = {
+app.use(cors({
   origin: ["http://localhost:5173", "https://erms-frontend-g9oz.vercel.app"],
-  methods: "GET,POST,DELETE,OPTIONS,PATCH",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-};
-app.use(cors(corsOptions));
+  credentials: true
+}));
+
+
 
 // --- JWT Middleware ---
 const JWT_SECRET = process.env.JWT_KEY;
