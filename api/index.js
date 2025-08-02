@@ -92,11 +92,20 @@ app.post("/v1/login", async (req, res) => {
   try {
     const { userEmail, userPassword } = req.body;
 
+    if (!userEmail || !userPassword) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
     const user = await User.findOne({ userEmail });
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const isMatch = await bcrypt.compare(userPassword, user.userPassword);
     if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+
+    if (!JWT_SECRET) {
+      console.error("Missing JWT_SECRET");
+      return res.status(500).json({ message: "Server misconfigured: JWT_SECRET missing" });
+    }
 
     const token = JWT.sign(
       { id: user._id, email: user.userEmail, userRole: user.userRole },
@@ -107,9 +116,10 @@ app.post("/v1/login", async (req, res) => {
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({ message: "Login failed" });
+    res.status(500).json({ message: "Login failed", error: error.message });
   }
 });
+
 
 
 app.get("/v1/auth/me", verifyJWT, async (req, res) => {
