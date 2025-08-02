@@ -194,22 +194,6 @@ app.get("/v1/auth/projects", verifyJWT, async (req, res) => {
   }
 });
 
-app.get("/v1/auth/projects/:id", verifyJWT, async (req, res) => {
-  try {
-    const filter = {
-      _id: req.params.id,
-      $or: [
-        { managerId: req.user.id },
-        { assignedEngineers: req.user.id },
-      ],
-    };
-    const project = await Project.findOne(filter).populate("managerId", "userName userEmail");
-    if (!project) return res.status(404).json({ message: "Project not found or unauthorized" });
-    res.status(200).json(project);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch project" });
-  }
-});
 
 app.post("/v1/auth/update/projects/:id", verifyJWT, async (req, res) => {
   try {
@@ -226,16 +210,7 @@ app.post("/v1/auth/update/projects/:id", verifyJWT, async (req, res) => {
   }
 });
 
-app.delete("/v1/auth/delete/projects/:id", verifyJWT, async (req, res) => {
-  try {
-    if (req.user.userRole !== "Manager") return res.status(403).json({ message: "Only managers can delete projects" });
-    const deletedProject = await Project.findOneAndDelete({ _id: req.params.id, managerId: req.user.id });
-    if (!deletedProject) return res.status(404).json({ message: "Project not found or unauthorized" });
-    res.status(200).json({ message: "Project deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to delete project" });
-  }
-});
+
 
 // --- TASK ROUTES ---
 app.post("/v1/auth/tasks", verifyJWT, async (req, res) => {
@@ -293,26 +268,6 @@ app.get("/v1/auth/tasks", verifyJWT, async (req, res) => {
     res.status(200).json(tasks);
   } catch (error) {
     console.error("Failed to fetch tasks:", error);
-    res.status(500).json({ message: "Failed to fetch tasks", error: error.message });
-  }
-});
-
-
-app.get("/v1/auth/projects/:projectId/tasks", verifyJWT, async (req, res) => {
-  try {
-    if (req.user.userRole !== "Manager") {
-      return res.status(403).json({ message: "Only managers can view project tasks" });
-    }
-
-    const project = await Project.findOne({ _id: req.params.projectId, managerId: req.user.id });
-    if (!project) {
-      return res.status(404).json({ message: "Project not found or unauthorized" });
-    }
-
-    const tasks = await Task.find({ projectId: req.params.projectId }).populate("engineerId", "userName userEmail");
-
-    res.status(200).json(tasks);
-  } catch (error) {
     res.status(500).json({ message: "Failed to fetch tasks", error: error.message });
   }
 });
