@@ -264,17 +264,35 @@ app.post("/v1/auth/tasks", verifyJWT, async (req, res) => {
 
 app.get("/v1/auth/tasks", verifyJWT, async (req, res) => {
   try {
-    // if (req.user.userRole !== "Engineer") {
-    //   return res.status(403).json({ message: "Only engineers can view their tasks" });
-    // }
+    let tasks = [];
 
-    const tasks = await Task.find({ engineerId: req.user.id }).populate("projectId", "projectName projectStatus");
+    if (req.user.userRole === "Manager") {
+      // Fetch projects managed by this manager
+      const projects = await Project.find({ managerId: req.user.id });
+
+      if (!projects.length) {
+        return res.status(200).json([]); // No projects → no tasks
+      }
+
+      const projectIds = projects.map((project) => project._id);
+
+      // Fetch tasks for these projects
+      tasks = await Task.find({ projectId: { $in: projectIds } })
+        .populate("projectId", "projectName projectStatus")
+        .populate("engineerId", "userName maxCapacity");
+    } else {
+      // If user is Engineer, fetch only their tasks
+      tasks = await Task.find({ engineerId: req.user.id })
+        .populate("projectId", "projectName projectStatus");
+    }
 
     res.status(200).json(tasks);
   } catch (error) {
+    console.error("Failed to fetch tasks:", error);
     res.status(500).json({ message: "Failed to fetch tasks", error: error.message });
   }
 });
+
 
 app.get("/v1/auth/projects/:projectId/tasks", verifyJWT, async (req, res) => {
   try {
