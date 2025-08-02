@@ -153,13 +153,16 @@ app.get("/v1/auth/engineers", verifyJWT, async (req, res) => {
       return res.status(403).json({ message: "Only managers can view engineers" });
     }
 
-    const engineers = await User.find({ userRole: "Engineer" }).select("-userPassword");
+    const engineers = await User.find({ userRole: "Engineer" })
+      .select("userName userSkills maxCapacity");
+
     res.status(200).json({ users: engineers });
   } catch (error) {
     console.error("Error fetching engineers:", error.message);
     res.status(500).json({ message: "Failed to fetch engineers" });
   }
 });
+
 
 
 // --- Project Routes ---
