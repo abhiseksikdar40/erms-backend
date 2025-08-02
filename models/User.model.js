@@ -8,7 +8,7 @@ const UserSchema = new mongoose.Schema({
     // For Engineer Fields ↓
     userSkills: [{ type: String}],
     userSeniority: { type: String, enum: ["Junior", "Mid", "Senior"]},
-    maxCapacity: { type: Number},
+    maxCapacity: { type: Number, default: 100},
     userDepartment: { type: String}
 },
 {
