@@ -102,8 +102,9 @@ app.post("/v1/login", async (req, res) => {
     const isMatch = await bcrypt.compare(userPassword, user.userPassword);
     if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
+    const JWT_SECRET = process.env.JWT_KEY;
     if (!JWT_SECRET) {
-      console.error("Missing JWT_SECRET");
+      console.error("Missing JWT_SECRET at runtime");
       return res.status(500).json({ message: "Server misconfigured: JWT_SECRET missing" });
     }
 
