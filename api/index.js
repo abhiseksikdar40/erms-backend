@@ -16,7 +16,7 @@ app.use(express.json());
 
 // --- CORS ---
 const corsOptions = {
-  origin: "*", // or ["http://localhost:5173", "https://your-vercel-url"]
+  origin: ["http://localhost:5173", "https://erms-frontend-g9oz.vercel.app"],
   methods: "GET,POST,DELETE,OPTIONS,PATCH",
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
